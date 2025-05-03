@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Twatter Feed</title>
+    <meta name="csrf-token" content="{{ csrf_token }}">
+
     <style>
-        /* Global Styles */
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f6f9;
             color: #333;
             margin: 0;
@@ -19,47 +20,27 @@
             font-weight: bold;
             color: #1a73e8;
             text-align: center;
-            margin-top: 2rem;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+            margin: 2rem 0 1.5rem;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.15);
         }
 
-        h3 {
-            font-size: 1.5rem;
-            color: #222;
-            font-weight: bold;
-        }
-
-        p {
-            font-size: 1rem;
-            color: #555;
-            line-height: 1.6;
-        }
-
-        small {
-            font-size: 0.9rem;
-            color: #888;
-        }
-
-        /* Button Styles */
         button {
             background-color: #1a73e8;
-            color: white;
+            color: #fff;
             font-size: 1rem;
             font-weight: bold;
             padding: 12px 24px;
-            border-radius: 5px;
+            border-radius: 30px;
             border: none;
             cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
             transition: background-color 0.3s, transform 0.3s;
-            margin-bottom: 2rem;
             display: block;
-            margin-left: auto;
-            margin-right: auto;
+            margin: 0 auto 2rem;
         }
 
         button:hover {
-            background-color: #1558c3;
+            background-color: #125fcc;
             transform: translateY(-2px);
         }
 
@@ -67,64 +48,62 @@
             outline: none;
         }
 
-        /* Card Style for Each Joke */
+        .divider {
+            border-bottom: 2px solid #e0e0e0;
+            margin: 0 1rem 2rem;
+        }
+
         .joke-card {
             background-color: #ffffff;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 1.5rem 0;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: box-shadow 0.3s;
+            border-radius: 10px;
+            padding: 24px;
+            margin: 1.5rem auto;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.05);
             max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
+            transition: box-shadow 0.3s;
         }
 
         .joke-card:hover {
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
         }
 
         .joke-headline {
-            font-weight: bold;
-            color: #333;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #222;
             margin-bottom: 0.5rem;
         }
 
         .joke-description {
             font-style: italic;
-            color: #666;
+            color: #555;
             margin-bottom: 1rem;
         }
 
         .joke-footer {
             font-size: 0.9rem;
             color: #888;
+            border-top: 1px solid #eee;
+            padding-top: 0.5rem;
         }
 
-        .divider {
-            border-bottom: 2px solid #f1f1f1;
-            margin: 1.5rem 0;
-        }
-
-        /* Responsive Design */
         @media (max-width: 768px) {
             h1 {
                 font-size: 2rem;
             }
 
             .joke-card {
-                padding: 15px;
+                padding: 16px;
                 margin: 1rem;
             }
 
             button {
-                width: 80%;
-                padding: 10px;
-                font-size: 0.9rem;
+                width: 90%;
+                font-size: 0.95rem;
             }
         }
     </style>
+
     <script>
         function runFetch() {
             fetch('/run-fetch/', {
@@ -137,7 +116,7 @@
             .then(res => res.json())
             .then(data => {
                 if (data.status === 'success') {
-                    location.reload();  // Optionally reload to show new jokes
+                    location.reload();
                 } else {
                     alert("Failed to fetch jokes.");
                 }
@@ -145,29 +124,26 @@
         }
 
         function getCSRFToken() {
-            return document.cookie.split('; ')
-                .find(row => row.startsWith('csrftoken='))
-                ?.split('=')[1];
+            return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         }
     </script>
 </head>
+
 <body>
 
-    <h1>Twatter Joke Feed</h1>
+    <h1>🃏 Twatter Joke Feed</h1>
 
-    <!-- Button to Fetch New Jokes -->
-    <button onclick="runFetch()">Fetch New Jokes</button>
+    <button onclick="runFetch()">📥 Fetch New Jokes</button>
 
     <div class="divider"></div>
 
-    <!-- Joke Cards List -->
     <div id="joke-list">
         {% for joke in jokes %}
         <div class="joke-card">
-            <div class="joke-headline">{{ joke.headline }}</div>
-            <div class="joke-description">{{ joke.joke }}</div>
+            <div class="joke-headline">📰 {{ joke.headline }}</div>
+            <div class="joke-description">"{{ joke.joke }}"</div>
             <div class="joke-footer">
-                <small>Source: {{ joke.source }} | Published: {{ joke.published_at }}</small>
+                Source: {{ joke.source }} &nbsp;|&nbsp; Published: {{ joke.published_at }}
             </div>
         </div>
         {% endfor %}

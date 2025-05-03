@@ -4,7 +4,7 @@ from .models import Joke
 from .tasks import fetch_headlines  # Make sure it returns saved data
 
 def joke_feed(request):
-    jokes = Joke.objects.order_by('-fetched_at')[:20]
+    jokes = Joke.objects.order_by('-fetched_at')
     return render(request, 'twatter/joke_feed.html', {'jokes': jokes})
 
 def run_fetch_headlines(request):
