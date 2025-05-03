@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Twatter Feed</title>
+</head>
+<body>
+    <h1>Twatter Joke Feed</h1>
+    <ul>
+        {% for item in headlines %}
+            <li>
+                <strong>{{ item.title }}</strong> <br/>
+                <em>Source:</em> {{ item.source }} <br/>
+                <pre>{{ item.joke }}</pre>
+                <a href="{{ item.url }}">Read more</a>
+                <hr/>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
