@@ -38,7 +38,7 @@ def generate_joke(headline: str, persona: str = None) -> str:
 NEWS_API_ENDPOINT = "https://newsapi.org/v2/top-headlines"
 PARAMS = {
     "country": "us",
-    "pageSize": 10,
+    "pageSize": 100,
     "category": "general",
     "apiKey": NEWSAPI_KEY
 }
@@ -55,6 +55,7 @@ def fetch_headlines():
 
         headlines = []
         for article in data["articles"]:
+            print("Article:", article)  # Debugging line
             title = article.get("title")
             if not title:
                 continue
