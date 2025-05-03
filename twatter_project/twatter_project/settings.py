@@ -23,9 +23,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-lfydsz-q^03@x$dc5&bbz6b930tx)#8g_pc=s#2ri5j^*4svw6'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'chiptheo.pythonanywhere.com',
+]
 
 
 # Application definition
