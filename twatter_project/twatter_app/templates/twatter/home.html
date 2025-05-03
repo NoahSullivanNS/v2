@@ -1,8 +1,0 @@
-<h1>Twatter Jokes</h1>
-{% for joke in jokes %}
-    <div style="margin-bottom: 2rem;">
-        <strong>{{ joke.headline }}</strong><br>
-        <p>{{ joke.joke }}</p>
-        <small>{{ joke.source }} | {{ joke.published_at }}</small>
-    </div>
-{% endfor %}

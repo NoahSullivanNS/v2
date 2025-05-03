@@ -3,5 +3,5 @@ from . import views
 
 urlpatterns = [
     path('', views.joke_feed, name='joke_feed'),
-    path('home/', views.homepage, name='homepage'),
+    path('run-fetch/', views.run_fetch_headlines, name='run_fetch_headlines'),
 ]

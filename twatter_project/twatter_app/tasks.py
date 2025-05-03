@@ -1,27 +1,17 @@
-import requests
 from datetime import datetime
-
+import requests
 import google.generativeai as genai
+import random
 
-# Configure the Gemini API key
-genai.configure(api_key="AIzaSyAx0sS0BjK9-p3KNU_U9WBUj0nwNq-JJsU")
+from .keys import GEMINI_API_KEY, NEWSAPI_KEY
 
-# Initialize Gemini model
+from .models import Joke  # ✅ import your Django model
+
+# Configure Gemini API
+genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel("gemini-2.5-flash-preview-04-17")
 
-# Function to generate a joke based on a headline
-def generate_joke(headline: str, persona: str = "Late Night Host") -> str:
-    """
-    Generates a joke based on the provided headline and persona using Google Gemini API.
-
-    Parameters:
-        headline (str): The news headline to base the joke on.
-        persona (str): The persona style for the joke generation.
-
-    Returns:
-        str: The generated joke or error message.
-    """
-
+def generate_joke(headline: str, persona: str = None) -> str:
     prompt_templates = {
         "Late Night Host": f"You are a late-night talk show host with a sharp wit. Given this real news headline: \"{headline}\", write a fake tweet in your voice, using humor and sarcasm.",
         "Paranoid Conspiracy Uncle": f"You are a paranoid conspiracy uncle who believes that everything is connected to some global agenda. Given this real news headline: \"{headline}\", write a tweet exposing the 'truth' in an absurd, wild way.",
@@ -35,19 +25,16 @@ def generate_joke(headline: str, persona: str = "Late Night Host") -> str:
         "Shakespearean": f"You are William Shakespeare on Twitter. Given this headline: \"{headline}\", write a poetic and absurdly dramatic tweet using Elizabethan language."
     }
 
-    # If no persona is provided, choose one at random
     if persona is None:
         persona = random.choice(list(prompt_templates.keys()))
-
-    prompt = prompt_templates.get(persona, prompt_templates["Late Night Host"])
+    prompt = prompt_templates.get(persona)
 
     try:
         response = model.generate_content(prompt)
         return response.text.strip()
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error generating joke: {e}"
 
-NEWSAPI_KEY = "074b7a5bdd274bb68ab9da5df5574e2e"  # replace with your actual key
 NEWS_API_ENDPOINT = "https://newsapi.org/v2/top-headlines"
 PARAMS = {
     "country": "us",
@@ -63,24 +50,41 @@ def fetch_headlines():
         data = response.json()
 
         if data.get("status") != "ok":
-            print("Failed to fetch news:", data)
+            print("News API returned non-ok status")
             return []
 
         headlines = []
         for article in data["articles"]:
-            headline_text = article.get("title")
-            joke = generate_joke(headline_text)  # auto random persona
+            title = article.get("title")
+            if not title:
+                continue
+
+            # Optional: avoid duplicates
+            if Joke.objects.filter(headline=title).exists():
+                continue
+
+            joke_text = generate_joke(title)
+
+            # Save to database
+            joke_obj = Joke.objects.create(
+                headline=title,
+                joke=joke_text,
+                source=article.get("source", {}).get("name"),
+                url=article.get("url"),
+                published_at=article.get("publishedAt")
+            )
+
+            # Add to response list (for UI)
             headlines.append({
-                "title": headline_text,
-                "description": article.get("description"),
-                "url": article.get("url"),
-                "publishedAt": article.get("publishedAt"),
-                "source": article.get("source", {}).get("name"),
-                "fetchedAt": datetime.utcnow().isoformat(),
-                "joke": joke
+                "title": joke_obj.headline,
+                "joke": joke_obj.joke,
+                "source": joke_obj.source,
+                "url": joke_obj.url,
+                "publishedAt": joke_obj.published_at,
+                "fetchedAt": joke_obj.fetched_at
             })
-            print(f"- {headline_text} (Source: {article.get('source', {}).get('name')})")
-            print(joke)
+
+            print(f"✅ Saved joke for: {title}")
 
         return headlines
 
